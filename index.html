@@ -480,26 +480,23 @@
     const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1510009945528074342/_dglTkU23OnajJNsndUKdEuF-JbmYjJHo42Wcxy5OTKpPES88Xt5tNi8eq05bOY8La6_';
 
     // ── Puzzle data ───────────────────────────────────────────────────────────
-    // KEYWORD: 8 letters running down the middle column — change to whatever you like
-    // (keep it neutral so it doesn't give away the gender!)
-    const KW_COL    = 3;
+    // KW_COL=4 (not 3) so words with the keyword letter at the end (e.g. PIZZA, key=4) fit
+    const KW_COL    = 4;
     const TOTAL_COL = 14;
-    // 8-letter keyword — each letter lights up as a row is solved
-    // TODO: replace DAGURINN with your real keyword before going live
-    const KEYWORD   = ['D','A','G','U','R','I','N','N'];
+    const KEYWORD   = ['F','A','G','N','A','Ð','U','R'];
 
     // word : answer in uppercase; '&' = fixed visible separator user doesn't type
     // key  : 0-based index in `word` of the keyword letter
     // hint : clue text
     const PUZZLE = [
-        { word: 'DOG',   key: 0, hint: 'Hundur'          },
-        { word: 'ANT',   key: 0, hint: 'Maur'            },
-        { word: 'GOAT',  key: 0, hint: 'Geit'            },
-        { word: 'UNCLE', key: 0, hint: 'Frændi'          },
-        { word: 'RAIN',  key: 0, hint: 'Rigning'         },
-        { word: 'ICE',   key: 0, hint: 'Ís'              },
-        { word: 'NOSE',  key: 0, hint: 'Nef'             },
-        { word: 'NIGHT', key: 0, hint: 'Nótt'            },
+        { word: 'FISH',  key: 0, hint: 'Fiskur'                 },  // F
+        { word: 'ANT',   key: 0, hint: 'Maur'                   },  // A
+        { word: 'GOAT',  key: 0, hint: 'Geit'                   },  // G
+        { word: 'NET',   key: 0, hint: 'Nét'                    },  // N
+        { word: 'PIZZA', key: 4, hint: 'Uppáhalds matur Bylgju' },  // A
+        { word: 'FAÐIR', key: 2, hint: 'Pabbi'                  },  // Ð
+        { word: 'SUN',   key: 1, hint: 'Sól'                    },  // U
+        { word: 'RAIN',  key: 0, hint: 'Rigning'                },  // R
     ];
 
     // ── Intro logic ───────────────────────────────────────────────────────────
