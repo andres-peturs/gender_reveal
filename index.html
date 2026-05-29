@@ -2,7 +2,7 @@
 <html lang="is">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Gáta</title>
     <style>
         :root {
@@ -23,7 +23,8 @@
             color: #e5e7eb;
             font-family: 'Segoe UI', system-ui, sans-serif;
             min-height: 100vh;
-            padding: 28px 16px 60px;
+            /* safe-area padding for notched iPhones */
+            padding: 28px 16px max(60px, env(safe-area-inset-bottom, 60px));
         }
 
         h1 {
@@ -41,14 +42,19 @@
             position: fixed; inset: 0;
             background: #0d1117;
             flex-direction: column;
-            align-items: center; justify-content: flex-start;
-            gap: 28px; z-index: 1000;
-            padding: 48px 24px 40px;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 24px;
+            z-index: 1000;
+            padding: max(48px, env(safe-area-inset-top, 48px)) 24px max(32px, env(safe-area-inset-bottom, 32px));
             overflow-y: auto;
+            overscroll-behavior: contain;
         }
-        /* On taller screens, center vertically */
         @media (min-height: 640px) {
             .intro-overlay { justify-content: center; }
+        }
+        @media (max-width: 480px) {
+            .intro-overlay { gap: 20px; }
         }
         .intro-overlay.hidden { display: none; }
 
@@ -71,7 +77,7 @@
         .intro-form {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 18px;
             width: 100%;
             max-width: 340px;
         }
@@ -84,13 +90,14 @@
         }
 
         .intro-input {
+            -webkit-appearance: none;
             width: 100%;
             padding: 14px 16px;
             background: #1f2937;
             border: 1px solid #374151;
             border-radius: 10px;
             color: #e5e7eb;
-            font-size: 16px; /* must be ≥16px to prevent iOS auto-zoom on focus */
+            font-size: 16px;
             outline: none;
             transition: border-color 0.2s;
         }
@@ -105,7 +112,7 @@
 
         .guess-buttons {
             display: flex;
-            gap: 16px;
+            gap: 14px;
         }
 
         .guess-btn {
@@ -117,6 +124,7 @@
             font-weight: 800;
             cursor: pointer;
             letter-spacing: 1px;
+            touch-action: manipulation;
             transition: transform 0.1s, opacity 0.15s;
         }
         .guess-btn:active { transform: scale(0.96); }
@@ -143,7 +151,7 @@
         @media (max-width: 700px) {
             .game { flex-direction: column; align-items: center; gap: 24px; }
             .hints { order: 2; width: 100%; max-width: 520px; }
-            .crossword-col { order: 1; width: 100%; align-items: center; }
+            .crossword-col { order: 1; width: 100%; }
         }
 
         /* ── Hints panel ────────────────────────────────── */
@@ -158,6 +166,7 @@
             margin-bottom: 8px;
             border: 1px solid transparent;
             cursor: pointer;
+            touch-action: manipulation;
             transition: background 0.15s, border-color 0.15s;
             user-select: none;
         }
@@ -179,20 +188,21 @@
         .hint-item.solved .hint-num { background: #16a34a; }
 
         .hint-body { flex: 1; padding-top: 1px; min-width: 0; }
-        .hint-text { font-size: 13px; line-height: 1.5; color: #d1d5db; }
+        .hint-text { font-size: 13px; line-height: 1.5; color: #d1d5db; word-break: break-word; }
         .hint-item.solved .hint-text { color: #86efac; }
         .hint-len  { font-size: 11px; color: #6b7280; margin-top: 2px; }
 
         .extra-btn {
             display: inline-block;
             margin-top: 6px;
-            padding: 2px 8px;
+            padding: 4px 10px;
             background: transparent;
             border: 1px solid #4b5563;
             border-radius: 4px;
             color: #6b7280;
             font-size: 11px;
             cursor: pointer;
+            touch-action: manipulation;
             transition: border-color 0.2s, color 0.2s;
         }
         .extra-btn:hover { border-color: #9ca3af; color: #d1d5db; }
@@ -206,12 +216,10 @@
         }
         .extra-reveal.show { display: block; }
 
+        /* Single column on mobile — long Icelandic clues don't fit in 2-col */
         @media (max-width: 700px) {
-            .hints { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-            .hint-item { margin-bottom: 0; }
-        }
-        @media (max-width: 380px) {
-            .hints { grid-template-columns: 1fr; }
+            .hints { display: flex; flex-direction: column; }
+            .hint-item { margin-bottom: 6px; }
         }
 
         /* ── Crossword column ───────────────────────────── */
@@ -222,11 +230,15 @@
             gap: 16px;
         }
 
-        @media (max-width: 700px) {
-            .crossword-col { order: 1; width: 100%; }
+        /* smooth scroll + hide scrollbar on the grid wrapper */
+        .grid-wrap {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+            /* hide scrollbar visually while keeping it functional */
+            scrollbar-width: none;
         }
-
-        .grid-wrap { overflow-x: auto; width: 100%; }
+        .grid-wrap::-webkit-scrollbar { display: none; }
 
         .grid { display: grid; gap: 2px; }
 
@@ -237,6 +249,7 @@
             font-size: var(--font); font-weight: 700;
             text-transform: uppercase;
             border-radius: 4px;
+            touch-action: manipulation;
             transition: background 0.2s, border-color 0.2s, color 0.1s;
             position: relative;
         }
@@ -251,9 +264,9 @@
             cursor: pointer;
         }
 
-        .cell.word.ar { border-color: #4b6a9b; background: #1a253d; }
-        .cell.nov.ar  { border-color: #60a5fa; background: #1a2d50; }
-        .cell.fixed.ar{ border-color: #4b6a9b; background: #1a253d; color: #9ca3af; }
+        .cell.word.ar  { border-color: #4b6a9b; background: #1a253d; }
+        .cell.nov.ar   { border-color: #60a5fa; background: #1a2d50; }
+        .cell.fixed.ar { border-color: #4b6a9b; background: #1a253d; color: #9ca3af; }
 
         .cell.typing      { color: #e5e7eb; }
         .cell.nov.typing  { color: #93c5fd; }
@@ -302,11 +315,7 @@
             margin-bottom: 6px;
             letter-spacing: 0.5px;
         }
-
-        .progress-label span {
-            color: #60a5fa;
-            font-weight: 700;
-        }
+        .progress-label span { color: #60a5fa; font-weight: 700; }
 
         .progress-track {
             width: 100%;
@@ -337,22 +346,33 @@
             font-size: 13px;
             color: #93c5fd;
             text-align: center;
-            padding: 0 6px;
-            min-height: 18px;
+            padding: 0 8px;
+            min-height: 36px;
+            line-height: 1.5;
+            word-break: break-word;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .lock-btn {
-            width: 100%; max-width: 280px;
-            padding: 12px;
+            width: 100%;
+            max-width: 320px;
+            padding: 14px;
             background: #3b82f6;
             color: white; border: none;
             border-radius: 10px;
             font-size: 1rem; font-weight: 700;
             cursor: pointer; letter-spacing: 1px;
+            touch-action: manipulation;
             transition: background 0.15s, transform 0.1s;
         }
         .lock-btn:hover  { background: #2563eb; }
         .lock-btn:active { transform: scale(0.97); background: #1d4ed8; }
+
+        @media (max-width: 480px) {
+            .lock-btn { max-width: 100%; }
+        }
 
         /* ── Off-screen keyboard capture (mobile) ───────── */
         #kbd {
@@ -370,8 +390,10 @@
             background: rgba(0,0,0,0.92);
             flex-direction: column;
             align-items: center; justify-content: center;
-            gap: 20px; z-index: 999; padding: 24px;
+            gap: 20px; z-index: 999;
+            padding: 24px max(24px, env(safe-area-inset-right, 24px));
             text-align: center;
+            overscroll-behavior: contain;
         }
         .overlay.show { display: flex; }
 
@@ -414,7 +436,7 @@
 
 <!-- ── Intro screen ────────────────────────────────────────────── -->
 <div class="intro-overlay" id="introOverlay">
-    <div class="intro-title">Gettu þér til!</div>
+    <div class="intro-title">Giskaðu á kynið!!!</div>
     <div class="intro-subtitle">Leysið gátuna til að finna út hvort það verður strákur eða stelpa.</div>
 
     <div class="intro-form">
@@ -476,27 +498,23 @@
 
 <script>
     // ── Config ────────────────────────────────────────────────────────────────
-    // Replace with your actual Discord webhook URL to capture guesses
     const DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1510009945528074342/_dglTkU23OnajJNsndUKdEuF-JbmYjJHo42Wcxy5OTKpPES88Xt5tNi8eq05bOY8La6_';
 
     // ── Puzzle data ───────────────────────────────────────────────────────────
-    // KW_COL=4 (not 3) so words with the keyword letter at the end (e.g. PIZZA, key=4) fit
+    // KW_COL=4 so words with the keyword letter at end (e.g. PIZZA key=4) fit on screen
     const KW_COL    = 4;
     const TOTAL_COL = 14;
     const KEYWORD   = ['F','A','G','N','A','Ð','U','R'];
 
-    // word : answer in uppercase; '&' = fixed visible separator user doesn't type
-    // key  : 0-based index in `word` of the keyword letter
-    // hint : clue text
     const PUZZLE = [
-        { word: 'FJÓRTÁN', key: 0, hint: 'Hversu marga daga fór Bylgja yfir settan dag?' },  // F
-        { word: 'PIZZA', key: 4, hint: 'Uppáhalds matur Glódísar' },  // A
-        { word: 'MADAGASCAR', key: 4, hint: 'Frá hvaða landi kemur hundategund Móu, Coton de Tulear' },  // G
-        { word: 'HUNDUR',    key: 2, hint: 'Hvaða dýr er uppáhalds bangsi Glódísar'                },  // N
-        { word: 'PIZZA', key: 4, hint: 'Uppáhalds matur Bylgju' },  // A
-        { word: 'URÐARHÓLL', key: 2, hint: 'Hvað heitir leikskóli Glódísar?'                   },  // Ð
-        { word: 'HUND',     key: 1, hint: 'Hvað er helmingur af Hundraði?', extraHint: 'Rímar við Fund' },  // U
-        { word: 'LAKKRÍS', key: 4, hint: 'Hvaða nammi hatar Andrés' },  // R
+        { word: 'FJÓRTÁN',    key: 0, hint: 'Hversu marga daga fór Bylgja yfir settan dag?'               },  // F
+        { word: 'PIZZA',      key: 4, hint: 'Uppáhalds matur Glódísar'                                    },  // A
+        { word: 'MADAGASCAR', key: 4, hint: 'Frá hvaða landi kemur hundategund Móu, Coton de Tulear'      },  // G
+        { word: 'HUNDUR',     key: 2, hint: 'Hvaða dýr er uppáhalds bangsi Glódísar'                      },  // N
+        { word: 'PIZZA',      key: 4, hint: 'Uppáhalds matur Bylgju'                                      },  // A
+        { word: 'URÐARHÓLL',  key: 2, hint: 'Hvað heitir leikskóli Glódísar?'                             },  // Ð
+        { word: 'HUND',       key: 1, hint: 'Hvað er helmingur af Hundraði?', extraHint: 'Rímar við Fund' },  // U
+        { word: 'LAKKRÍS',    key: 4, hint: 'Hvaða nammi hatar Andrés'                                    },  // R
     ];
 
     // ── Intro logic ───────────────────────────────────────────────────────────
@@ -559,8 +577,8 @@
     }
 
     function lenLabel(word) {
-        if (!word.includes('&')) return `${word.length} letters`;
-        return word.split('&').map(p => p.length).join(' + ') + ' letters';
+        if (!word.includes('&')) return `${word.length} stafir`;
+        return word.split('&').map(p => p.length).join(' + ') + ' stafir';
     }
 
     // ── Build grid ────────────────────────────────────────────────────────────
@@ -618,7 +636,7 @@
         if (entry.extraHint) {
             const btn = document.createElement('button');
             btn.className = 'extra-btn';
-            btn.textContent = 'Extra hint?';
+            btn.textContent = 'Vísbending?';
             const reveal = document.createElement('div');
             reveal.className = 'extra-reveal';
             reveal.textContent = entry.extraHint;
@@ -684,9 +702,12 @@
             cellGrid[row][sc + i].classList.add('ar');
         }
 
-        document.getElementById(`h${row}`).classList.add('active');
+        const hintEl = document.getElementById(`h${row}`);
+        hintEl.classList.add('active');
+        hintEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
         document.getElementById('clueBar').textContent =
-            `${row + 1}. ${PUZZLE[row].hint}  —  ${lenLabel(word)}`;
+            `${row + 1}. ${PUZZLE[row].hint}`;
 
         redraw(row);
         setKbd('');
@@ -694,14 +715,14 @@
     }
 
     // ── Input handling ────────────────────────────────────────────────────────
-    const kbd      = document.getElementById('kbd');
-    const overlay  = document.getElementById('overlay');
+    const kbd       = document.getElementById('kbd');
+    const overlay   = document.getElementById('overlay');
     const revealImg = document.getElementById('revealImg');
 
     function normalize(s) {
         return s.toUpperCase()
-                .replace(/Ð/g, 'D')   // treat Ð/ð as D so FADIR and FAÐIR both work
-                .replace(/Þ/g, 'TH')  // treat Þ/þ as TH
+                .replace(/Ð/g, 'D')
+                .replace(/Þ/g, 'TH')
                 .normalize('NFD')
                 .replace(/[̀-ͯ]/g, '')
                 .replace(/[^A-Z]/g, '');
@@ -713,7 +734,6 @@
     }
 
     document.addEventListener('keydown', e => {
-        // Don't intercept when user is typing in any real input (e.g. name field)
         const ae = document.activeElement;
         if (ae && ae !== kbd && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA')) return;
         if (solved[active]) return;
@@ -846,13 +866,13 @@
         const COUNT  = 160;
 
         const particles = Array.from({ length: COUNT }, () => ({
-            x:    Math.random() * canvas.width,
-            y:    -Math.random() * canvas.height,
-            w:    6 + Math.random() * 8,
-            h:    10 + Math.random() * 6,
-            color: COLORS[Math.floor(Math.random() * COLORS.length)],
-            vx:   (Math.random() - 0.5) * 2.5,
-            vy:   2.5 + Math.random() * 3,
+            x:      Math.random() * canvas.width,
+            y:      -Math.random() * canvas.height,
+            w:      6 + Math.random() * 8,
+            h:      10 + Math.random() * 6,
+            color:  COLORS[Math.floor(Math.random() * COLORS.length)],
+            vx:     (Math.random() - 0.5) * 2.5,
+            vy:     2.5 + Math.random() * 3,
             angle:  Math.random() * Math.PI * 2,
             spin:   (Math.random() - 0.5) * 0.18,
             opacity: 0.8 + Math.random() * 0.2,
@@ -861,12 +881,12 @@
         let frame;
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            let active = 0;
+            let alive = 0;
             for (const p of particles) {
                 p.x     += p.vx;
                 p.y     += p.vy;
                 p.angle += p.spin;
-                if (p.y < canvas.height + 20) active++;
+                if (p.y < canvas.height + 20) alive++;
 
                 ctx.save();
                 ctx.globalAlpha = p.opacity;
@@ -876,7 +896,7 @@
                 ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
                 ctx.restore();
             }
-            if (active > 0) {
+            if (alive > 0) {
                 frame = requestAnimationFrame(draw);
             } else {
                 canvas.style.display = 'none';
@@ -884,10 +904,12 @@
         }
         draw();
 
-        window.addEventListener('resize', () => {
+        function onResize() {
             canvas.width  = window.innerWidth;
             canvas.height = window.innerHeight;
-        }, { once: true });
+        }
+        window.addEventListener('resize', onResize, { once: true });
+        window.addEventListener('orientationchange', onResize, { once: true });
     }
 </script>
 
