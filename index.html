@@ -509,7 +509,7 @@
     const PUZZLE = [
         { word: 'FJÓRTÁN',    key: 0, hint: 'Hversu marga daga fór Bylgja yfir settan dag?'               },  // F
         { word: 'PIZZA',      key: 4, hint: 'Uppáhalds matur Glódísar'                                    },  // A
-        { word: 'MADAGASCAR', key: 4, hint: 'Frá hvaða landi kemur hundategund Móu, Coton de Tulear'      },  // G
+        { word: 'MADAGASCAR', key: 4, hint: 'Frá hvaða landi kemur hundategund Móu, Coton de Tulear', alts: ['MADAGASKAR'] },  // G
         { word: 'HUNDUR',     key: 2, hint: 'Hvaða dýr er uppáhalds bangsi Glódísar'                      },  // N
         { word: 'PIZZA',      key: 4, hint: 'Uppáhalds matur Bylgju'                                      },  // A
         { word: 'URÐARHÓLL',  key: 2, hint: 'Hvað heitir leikskóli Glódísar?'                             },  // Ð
@@ -782,7 +782,8 @@
         if (solved[active] || !typed) return;
         const entry = PUZZLE[active];
 
-        if (normalize(typed) !== normalize(entry.word)) {
+        const alts = (entry.alts || []).map(normalize);
+        if (normalize(typed) !== normalize(entry.word) && !alts.includes(normalize(typed))) {
             const sc = KW_COL - entry.key;
             for (let i = 0; i < entry.word.length; i++) {
                 if (entry.word[i] === '&') continue;
