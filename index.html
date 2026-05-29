@@ -527,15 +527,33 @@
         activate(0);
     }
 
-    function recordGuess(name, guess) {
+    function discordPost(payload) {
         if (!DISCORD_WEBHOOK || DISCORD_WEBHOOK === 'YOUR_DISCORD_WEBHOOK_URL_HERE') return;
-        const now  = new Date().toLocaleString('is-IS', { timeZone: 'Atlantic/Reykjavik' });
-        const text = `**${name}** heldur að kynið sé **${guess}** — ${now}`;
         fetch(DISCORD_WEBHOOK, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ content: text }),
+            body: JSON.stringify(payload),
         }).catch(() => {});
+    }
+
+    function recordGuess(name, guess) {
+        const color = guess === 'Strákur' ? 0x1d4ed8 : 0xbe185d;
+        discordPost({ embeds: [{
+            color,
+            author: { name: '🎯 Ný giskun' },
+            description: `**${name}** heldur að kynið sé **${guess}**`,
+            timestamp: new Date().toISOString(),
+        }]});
+    }
+
+    function recordSolve(name, guess) {
+        const correct = guess === 'Strákur';
+        discordPost({ embeds: [{
+            color: 0x22c55e,
+            author: { name: '✅ Leyst!' },
+            description: `**${name}** leyst gátuna! Giskaði **${guess}** — ${correct ? 'rétt 🎉' : 'rangt 😅'}`,
+            timestamp: new Date().toISOString(),
+        }]});
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -800,10 +818,10 @@
         const correct = playerGuess === 'Strákur';
 
         nameEl.textContent  = playerName ? `${playerName},` : '';
-        guessEl.textContent = correct
-            ? `Rétt giskað! Þú heldur að það sé ${playerGuess} — og það er!`
-            : `Rangt giskað — þú heldur ${playerGuess}, en...`;
+        guessEl.textContent = correct ? 'Rétt giskað!' : 'Rangt giskað';
         guessEl.className = `victory-guess ${correct ? 'correct' : 'wrong'}`;
+
+        recordSolve(playerName, playerGuess);
 
         overlay.classList.add('show');
         setTimeout(() => revealImg.classList.add('visible'), 300);
