@@ -489,7 +489,7 @@
     // key  : 0-based index in `word` of the keyword letter
     // hint : clue text
     const PUZZLE = [
-        { word: 'FISH',  key: 0, hint: 'Fiskur'                 },  // F
+        { word: 'FJÓRTÁN', key: 0, hint: 'Hversu marga daga fór Bylgja yfir settan dag?' },  // F
         { word: 'PIZZA', key: 4, hint: 'Uppáhalds matur Glódísar' },  // A
         { word: 'MADAGASCAR', key: 4, hint: 'Frá hvaða landi kemur hundategund Móu, Coton de Tulear' },  // G
         { word: 'HUNDUR',    key: 2, hint: 'Hvaða dýr er uppáhalds bangsi Glódísar'                },  // N
@@ -700,6 +700,8 @@
 
     function normalize(s) {
         return s.toUpperCase()
+                .replace(/Ð/g, 'D')   // treat Ð/ð as D so FADIR and FAÐIR both work
+                .replace(/Þ/g, 'TH')  // treat Þ/þ as TH
                 .normalize('NFD')
                 .replace(/[̀-ͯ]/g, '')
                 .replace(/[^A-Z]/g, '');
