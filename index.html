@@ -41,8 +41,14 @@
             position: fixed; inset: 0;
             background: #0d1117;
             flex-direction: column;
-            align-items: center; justify-content: center;
-            gap: 28px; z-index: 1000; padding: 32px 24px;
+            align-items: center; justify-content: flex-start;
+            gap: 28px; z-index: 1000;
+            padding: 48px 24px 40px;
+            overflow-y: auto;
+        }
+        /* On taller screens, center vertically */
+        @media (min-height: 640px) {
+            .intro-overlay { justify-content: center; }
         }
         .intro-overlay.hidden { display: none; }
 
@@ -84,7 +90,7 @@
             border: 1px solid #374151;
             border-radius: 10px;
             color: #e5e7eb;
-            font-size: 1rem;
+            font-size: 16px; /* must be ≥16px to prevent iOS auto-zoom on focus */
             outline: none;
             transition: border-color 0.2s;
         }
@@ -416,7 +422,9 @@
             <div class="intro-label">Nafnið þitt:</div>
             <input class="intro-input" id="nameInput" type="text"
                    placeholder="Skrifaðu nafnið hér"
-                   autocomplete="off" autocorrect="off" spellcheck="false" />
+                   autocomplete="given-name" autocorrect="off"
+                   autocapitalize="words" spellcheck="false"
+                   inputmode="text" />
         </div>
 
         <div>
@@ -688,10 +696,13 @@
     }
 
     document.addEventListener('keydown', e => {
+        // Don't intercept when user is typing in any real input (e.g. name field)
+        const ae = document.activeElement;
+        if (ae && ae !== kbd && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA')) return;
         if (solved[active]) return;
         if (e.ctrlKey || e.metaKey || e.altKey) return;
         if (e.key === 'Enter') { e.preventDefault(); submit(); return; }
-        if (document.activeElement === kbd) return;
+        if (ae === kbd) return;
 
         if (e.key === 'Backspace') {
             e.preventDefault();
