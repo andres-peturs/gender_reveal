@@ -485,7 +485,8 @@
 
 <input id="kbd" type="text"
        autocomplete="off" autocorrect="off"
-       autocapitalize="characters" spellcheck="false" />
+       autocapitalize="none" spellcheck="false"
+       inputmode="text" />
 
 <!-- ── Victory overlay ────────────────────────────────────────── -->
 <canvas id="confettiCanvas" style="position:fixed;inset:0;pointer-events:none;z-index:1001;display:none;"></canvas>
@@ -730,7 +731,11 @@
 
     function setKbd(val) {
         kbd.value = val;
+        // Call sync (desktop) AND deferred (iOS ignores sync during input event)
         try { kbd.setSelectionRange(val.length, val.length); } catch (_) {}
+        requestAnimationFrame(() => {
+            try { kbd.setSelectionRange(val.length, val.length); } catch (_) {}
+        });
     }
 
     document.addEventListener('keydown', e => {
@@ -762,13 +767,24 @@
         if (e.key === 'Enter') { e.preventDefault(); submit(); }
     });
 
-    kbd.addEventListener('input', () => {
+    kbd.addEventListener('input', e => {
         if (solved[active]) return;
         const max = typeLen(PUZZLE[active].word);
-        const raw = kbd.value.toUpperCase().replace(/[^\p{L}\d]/gu, '').slice(0, max);
-        typed = raw;
-        setKbd(typed);
+
+        if (e.inputType === 'deleteContentBackward') {
+            typed = typed.slice(0, -1);
+        } else if (e.inputType === 'insertText' && e.data) {
+            // Use e.data (exact char from keyboard) — more reliable than reading kbd.value
+            const ch = e.data.toUpperCase().replace(/[^\p{L}\d]/gu, '');
+            if (ch && typed.length < max) typed += ch;
+        } else {
+            // Fallback for paste / autocomplete / other input types
+            const raw = kbd.value.toUpperCase().replace(/[^\p{L}\d]/gu, '').slice(0, max);
+            typed = raw;
+        }
+
         redraw(active);
+        setKbd(typed);
     });
 
     document.getElementById('crosswordCol').addEventListener('click', () => kbd.focus());
